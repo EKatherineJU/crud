@@ -7,13 +7,26 @@ function App() {
   const [tasks, setTasks] = useState([])
   const [editMode, setEditMode] = useState(false)
   const [id, setId] = useState("")
+  const [error, setError] = useState(null)
 
+
+  const validForm = () => {
+    let isValid = true
+    setError(null)
+
+    if (isEmpty(task)){
+      setError("Debes ingresar una tarea")
+      isValid = false
+    }
+
+    return isValid
+  }
 
   const addTask = (e) => {
     //evitar que recargue la pagina por el default
     e.preventDefault()
-    if (isEmpty(task)){
-      console.log("Task empty")
+    
+    if (!validForm()) {
       return
     }
     
@@ -29,12 +42,10 @@ function App() {
   const saveTask = (e) => {
     //evitar que recargue la pagina por el default
     e.preventDefault()
-    if (isEmpty(task)){
-      console.log("Task empty")
+    if (!validForm()) {
       return
     }
         
-    
     const editedTasks = tasks.map(item => item.id === id ? {id, name: task} : item)
     setTasks(editedTasks)
     setEditMode (false)
@@ -61,8 +72,8 @@ function App() {
         <div className="col-8">
           <h4 className="text-center">Lista de Tareas</h4> 
           {
-            size (tasks) == 0 ? (
-              <h5 className="text-center">Aun no hay tareas programadas. </h5>
+            size (tasks) === 0 ? (
+              <li className="list-group-item">Aun no hay tareas programadas. </li>
             ) : (
               <ul className="list-group"> 
                 {
@@ -93,13 +104,18 @@ function App() {
            { editMode ? "Modificar Tarea" : "Agregar tarea"}
          </h4>
          <form onSubmit={editMode ? saveTask : addTask}>
-           <input
+            {
+              error && <span className="text-danger mb-2"> {error}</span>
+            } 
+
+            <input
             type="text"
             className="form-control mb-2"
             placeholder="Ingrese la tarea..."  
             onChange={(text) => setTask(text.target.value)}
             value={task}         
            />
+
            <button
               className={editMode ? "btn btn-warning btn-block" : "btn btn-dark btn-block"}
               type="submit"
